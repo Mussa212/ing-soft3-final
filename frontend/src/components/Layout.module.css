@@ -1,0 +1,80 @@
+.layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.header {
+    background-color: var(--color-white);
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0 var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.headerContent {
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+}
+
+.navLink {
+    color: var(--color-text);
+    font-weight: 500;
+    font-size: 16px;
+    transition: color 0.2s;
+}
+
+.navLink:hover {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.userMenu {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding-left: var(--spacing-md);
+    border-left: 1px solid #eee;
+}
+
+.userName {
+    font-weight: 600;
+    color: var(--color-primary-dark);
+}
+
+.main {
+    flex: 1;
+    padding: var(--spacing-xl) var(--spacing-md);
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.footer {
+    background-color: var(--color-primary-dark);
+    color: var(--color-secondary);
+    padding: var(--spacing-lg);
+    text-align: center;
+    font-size: 14px;
+}
