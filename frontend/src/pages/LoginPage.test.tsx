@@ -44,6 +44,15 @@ describe('LoginPage', () => {
         expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+
+        // Check for images
+        const artieImage = screen.getByAltText(/artie bucco/i);
+        expect(artieImage).toBeInTheDocument();
+        expect(artieImage).toHaveAttribute('src', expect.stringContaining('spoton.com'));
+
+        const restaurantImage = screen.getByAltText(/vesuvio restaurant/i);
+        expect(restaurantImage).toBeInTheDocument();
+        expect(restaurantImage).toHaveAttribute('src', expect.stringContaining('spoton.com'));
     });
 
     it('calls login API and redirects on success (user)', async () => {

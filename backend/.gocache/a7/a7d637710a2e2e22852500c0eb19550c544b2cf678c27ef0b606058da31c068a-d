@@ -1,5 +1,0 @@
-./auth_service.go
-./errors.go
-./reservation_service.go
-./auth_service_test.go
-./reservation_service_test.go

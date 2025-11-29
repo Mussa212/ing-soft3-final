@@ -48,5 +48,14 @@ describe('HomePage', () => {
         expect(screen.getByText(/authentic neapolitan cuisine/i)).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /register/i })).toBeInTheDocument();
+
+        // Check for images
+        const artieImage = screen.getByAltText(/artie bucco/i);
+        expect(artieImage).toBeInTheDocument();
+        expect(artieImage).toHaveAttribute('src', expect.stringContaining('fablehouse.tv'));
+
+        const restaurantImage = screen.getByAltText(/vesuvio restaurant/i);
+        expect(restaurantImage).toBeInTheDocument();
+        expect(restaurantImage).toHaveAttribute('src', expect.stringContaining('pbs.twimg.com'));
     });
 });

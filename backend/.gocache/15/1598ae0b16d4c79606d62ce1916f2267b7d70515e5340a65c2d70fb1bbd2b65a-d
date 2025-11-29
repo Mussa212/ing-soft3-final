@@ -1,4 +1,0 @@
-./db_client.go
-./migrate_seed.go
-./reservation_client.go
-./user_client.go

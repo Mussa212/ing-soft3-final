@@ -26,28 +26,23 @@ describe('Reservations Flow', () => {
                 { id: 1, user_id: 1, date: '2025-12-25', time: '20:00', people: 2, status: 'pending' }
             ]
         }).as('getReservations');
+
+        // Set viewport to desktop to ensure images are visible
+        cy.viewport(1280, 720);
     });
 
     it('allows a user to register, login, and create a reservation', () => {
+        // Home Page Verification & Navigation
+        cy.visit('/');
+        cy.contains('h1', 'Vesuvio Ristorante').should('be.visible');
+        cy.get('img[alt="Artie Bucco"]').should('be.visible');
+        cy.get('img[alt="Vesuvio Restaurant"]').should('be.visible');
+
+        cy.contains('button', 'Register').click();
+        cy.url().should('include', '/register');
+
         // Register
-        cy.visit('/register');
-        cy.get('input[name="name"]').type('Test User'); // Assuming input id/name is name, or we use label
-        // Check Input component implementation for id/name
-        // Input component uses id passed or name.
-
-        // Let's verify selectors based on our Input component
-        // Input component: <input id={id || props.name} ... />
-        // In RegisterPage: <Input label="Full Name" value={name} ... /> -> It doesn't have name prop, so id might be undefined?
-        // Wait, Input component: const inputId = id || props.name;
-        // If neither is provided, inputId is undefined. Label htmlFor will be undefined.
-        // I should fix RegisterPage to provide id or name to Inputs.
-
-        // Actually, let's fix RegisterPage and LoginPage to have name/id attributes for better accessibility and testing.
-        // But for now, let's assume I can select by label text or I'll fix the code first.
-
-        // Let's rely on testing-library like commands in Cypress if configured, or just standard cypress.
-        // Standard cypress: cy.contains('label', 'Full Name').next('input').type(...)
-
+        // cy.visit('/register'); // Already there
         cy.contains('label', 'Full Name').parent().find('input').type('Test User');
         cy.contains('label', 'Email').parent().find('input').type('test@example.com');
         cy.contains('label', 'Password').parent().find('input').type('password123');
@@ -57,7 +52,7 @@ describe('Reservations Flow', () => {
         cy.url().should('include', '/login');
 
         // Login
-        cy.contains('label', 'Email').parent().find('input').type('test@example.com');
+        cy.contains('label', 'Email').parent().find('input').type('test@example.example.com');
         cy.contains('label', 'Password').parent().find('input').type('password123');
         cy.contains('button', 'Sign In').click();
 
@@ -126,8 +121,11 @@ describe('Reservations Flow', () => {
             body: { id: 1, status: 'confirmed' }
         }).as('confirmReservation');
 
-        // Login as admin
-        cy.visit('/login');
+        // Login as admin (via Home)
+        cy.visit('/');
+        cy.contains('button', 'Login').click();
+        cy.url().should('include', '/login');
+
         cy.contains('label', 'Email').parent().find('input').type('admin@example.com');
         cy.contains('label', 'Password').parent().find('input').type('admin123');
         cy.contains('button', 'Sign In').click();

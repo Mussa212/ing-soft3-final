@@ -1,13 +1,16 @@
 :root {
-  --color-primary: #800020; /* Burgundy */
+  --color-primary: #800020;
+  /* Burgundy */
   --color-primary-dark: #5a0016;
-  --color-secondary: #FFFDD0; /* Cream */
-  --color-accent: #006400; /* Dark Green */
+  --color-secondary: #FFFDD0;
+  /* Cream */
+  --color-accent: #006400;
+  /* Dark Green */
   --color-text: #333333;
   --color-background: #fdfbf7;
   --color-white: #ffffff;
   --color-error: #d32f2f;
-  
+
   --font-heading: 'Georgia', 'Times New Roman', serif;
   --font-body: 'Helvetica Neue', 'Arial', sans-serif;
 
@@ -18,8 +21,8 @@
   --spacing-xl: 32px;
 
   --border-radius: 4px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  --shadow-md: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 }
 
 body {
@@ -31,7 +34,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
   color: var(--color-primary);
   margin-top: 0;
@@ -54,4 +62,10 @@ button {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 var(--spacing-md);
+}
+
+@media (max-width: 1024px) {
+  .desktop-only {
+    display: none !important;
+  }
 }

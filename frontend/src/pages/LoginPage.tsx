@@ -34,8 +34,17 @@ export const LoginPage: React.FC = () => {
 
     return (
         <Layout>
-            <div className={styles.authContainer}>
-                <div className={styles.card}>
+            <div className={styles.authContainer} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px' }}>
+                {/* Left Image - Artie */}
+                <div style={{ flex: 1, maxWidth: '900px', minWidth: '0' }} className="desktop-only">
+                    <img
+                        src="https://www.spoton.com/blog/content/images/2024/01/restaurant-tech-for-the-sopranos.png"
+                        alt="Artie Bucco"
+                        style={{ width: '100%', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}
+                    />
+                </div>
+
+                <div className={styles.card} style={{ flexShrink: 0, width: '400px' }}>
                     <h1 className={styles.title}>Welcome Back</h1>
                     <p className={styles.subtitle}>Sign in to manage your reservations</p>
 
@@ -71,6 +80,15 @@ export const LoginPage: React.FC = () => {
                     <div className={styles.footer}>
                         Don't have an account? <Link to="/register">Create one</Link>
                     </div>
+                </div>
+
+                {/* Right Image - Restaurant */}
+                <div style={{ flex: 1, maxWidth: '900px', minWidth: '0' }} className="desktop-only">
+                    <img
+                        src="https://www.spoton.com/blog/content/images/2024/01/Nuovo-Vesuvio-1024x576-1.jpg"
+                        alt="Vesuvio Restaurant"
+                        style={{ width: '100%', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}
+                    />
                 </div>
             </div>
         </Layout>
