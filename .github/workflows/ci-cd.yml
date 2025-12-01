@@ -1,0 +1,121 @@
+# Nota: crea el environment `prod` en Settings → Environments con Required reviewers para habilitar la aprobación manual antes de deploy a producción.
+# Sugerencia: protege la rama main y marca este workflow como status check requerido (Settings → Branches) para evitar merges si fallan los tests.
+name: CI/CD Vesuvio
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.1'
+
+      - name: Download modules
+        run: go mod download
+
+      - name: Test with coverage
+        run: go test ./... -coverprofile=coverage.out
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/coverage.out
+
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test with coverage
+        run: npm test -- --coverage
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage
+
+  deploy-qa:
+    name: Deploy QA
+    runs-on: ubuntu-latest
+    needs:
+      - backend-tests
+      - frontend-tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    env:
+      RENDER_HOOK_BACKEND_QA: ${{ secrets.RENDER_HOOK_BACKEND_QA }}
+      RENDER_HOOK_FRONTEND_QA: ${{ secrets.RENDER_HOOK_FRONTEND_QA }}
+    steps:
+      - name: Trigger backend QA deploy
+        run: curl -X POST "$RENDER_HOOK_BACKEND_QA"
+
+      - name: Trigger frontend QA deploy
+        run: curl -X POST "$RENDER_HOOK_FRONTEND_QA"
+
+  cypress-integration:
+    name: Cypress Integration
+    runs-on: ubuntu-latest
+    needs: deploy-qa
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Run Cypress against QA
+        run: npx cypress run --config baseUrl=https://vesuvio-frontend-qa.onrender.com
+        working-directory: frontend
+
+  deploy-prod:
+    name: Deploy Prod
+    runs-on: ubuntu-latest
+    needs: cypress-integration
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: prod
+    env:
+      RENDER_HOOK_BACKEND_PROD: ${{ secrets.RENDER_HOOK_BACKEND_PROD }}
+      RENDER_HOOK_FRONTEND_PROD: ${{ secrets.RENDER_HOOK_FRONTEND_PROD }}
+    steps:
+      - name: Trigger backend PROD deploy
+        run: curl -X POST "$RENDER_HOOK_BACKEND_PROD"
+
+      - name: Trigger frontend PROD deploy
+        run: curl -X POST "$RENDER_HOOK_FRONTEND_PROD"
