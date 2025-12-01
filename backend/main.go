@@ -13,11 +13,16 @@ import (
 	"vesuvio/internal/service"
 )
 
+var (
+	openDB    = client.NewDB
+	startHTTP = func(r *gin.Engine, port string) error { return r.Run(":" + port) }
+)
+
 func main() {
 	cfg := config.Load()
 
 	log.Printf("Using DATABASE_DSN: %s", redactDSN(cfg.DatabaseDSN))
-	db, err := client.NewDB(cfg.DatabaseDSN)
+	db, err := openDB(cfg.DatabaseDSN)
 	if err != nil {
 		log.Fatalf("failed to connect database: %v", err)
 	}
@@ -54,7 +59,7 @@ func main() {
 		adminRequired.PATCH("/reservations/:id/cancel", adminController.CancelReservation)
 	}
 
-	if err := r.Run(":" + cfg.Port); err != nil {
+	if err := startHTTP(r, cfg.Port); err != nil {
 		log.Fatalf("failed to start server: %v", err)
 	}
 }

@@ -90,6 +90,80 @@ func TestReservationController_UserFlow(t *testing.T) {
 	}
 }
 
+func TestReservationController_ErrorBranches(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	resClient := newControllerFakeReservationClient()
+	resSvc := service.NewReservationService(resClient)
+	resCtl := NewReservationController(resSvc)
+
+	// Create reservation with invalid payload (missing people)
+	body, _ := json.Marshal(controllerdto.CreateReservationRequest{
+		Date: "2025-12-01",
+		Time: "20:00",
+	})
+	req := httptest.NewRequest(http.MethodPost, "/reservations", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	c := newTestContext(req, w)
+	c.Set(middleware.ContextUserKey, servicedto.User{ID: 1})
+	resCtl.CreateReservation(c)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for invalid input, got %d", w.Code)
+	}
+
+	// List with invalid status
+	req = httptest.NewRequest(http.MethodGet, "/my/reservations?status=weird", nil)
+	w = httptest.NewRecorder()
+	c = newTestContext(req, w)
+	c.Set(middleware.ContextUserKey, servicedto.User{ID: 1})
+	resCtl.ListMyReservations(c)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for invalid status, got %d", w.Code)
+	}
+
+	// Cancel with invalid ID
+	req = httptest.NewRequest(http.MethodPatch, "/reservations/abc/cancel", nil)
+	w = httptest.NewRecorder()
+	c = newTestContext(req, w)
+	c.Params = gin.Params{gin.Param{Key: "id", Value: "abc"}}
+	c.Set(middleware.ContextUserKey, servicedto.User{ID: 1})
+	resCtl.CancelReservation(c)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for invalid id, got %d", w.Code)
+	}
+
+	// Seed reservation belonging to another user to trigger forbidden
+	otherRes, _ := resClient.CreateReservation(context.Background(), servicedto.CreateReservationParams{
+		UserID:  2,
+		Date:    time.Date(2025, 12, 1, 0, 0, 0, 0, time.UTC),
+		Time:    "19:00",
+		People:  2,
+		Status:  servicedto.StatusPending,
+		Comment: nil,
+	})
+	req = httptest.NewRequest(http.MethodPatch, "/reservations/forbidden/cancel", nil)
+	w = httptest.NewRecorder()
+	c = newTestContext(req, w)
+	c.Params = gin.Params{gin.Param{Key: "id", Value: fmt.Sprintf("%d", otherRes.ID)}}
+	c.Set(middleware.ContextUserKey, servicedto.User{ID: 1})
+	resCtl.CancelReservation(c)
+	if w.Code != http.StatusForbidden {
+		t.Fatalf("expected 403 for forbidden cancel, got %d", w.Code)
+	}
+
+	// Not found case
+	req = httptest.NewRequest(http.MethodPatch, "/reservations/missing/cancel", nil)
+	w = httptest.NewRecorder()
+	c = newTestContext(req, w)
+	c.Params = gin.Params{gin.Param{Key: "id", Value: "999"}}
+	c.Set(middleware.ContextUserKey, servicedto.User{ID: 1})
+	resCtl.CancelReservation(c)
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for missing reservation, got %d", w.Code)
+	}
+}
+
 func TestReservationController_AdminFlow(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -159,6 +233,64 @@ func TestReservationController_AdminFlow(t *testing.T) {
 	router.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200 on cancel, got %d", w.Code)
+	}
+}
+
+func TestAdminController_ErrorBranches(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	resSvc := service.NewReservationService(newControllerFakeReservationClient())
+	adminCtl := NewAdminController(resSvc)
+
+	// List missing date
+	req := httptest.NewRequest(http.MethodGet, "/admin/reservations", nil)
+	w := httptest.NewRecorder()
+	c := newTestContext(req, w)
+	adminCtl.ListReservations(c)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for missing date, got %d", w.Code)
+	}
+
+	// List invalid status
+	req = httptest.NewRequest(http.MethodGet, "/admin/reservations?date=2025-12-01&status=weird", nil)
+	w = httptest.NewRecorder()
+	c = newTestContext(req, w)
+	adminCtl.ListReservations(c)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for invalid status, got %d", w.Code)
+	}
+
+	// Confirm invalid id
+	req = httptest.NewRequest(http.MethodPatch, "/admin/reservations/abc/confirm", nil)
+	w = httptest.NewRecorder()
+	c = newTestContext(req, w)
+	c.Params = gin.Params{gin.Param{Key: "id", Value: "abc"}}
+	c.Set(middleware.ContextUserKey, servicedto.User{ID: 1, IsAdmin: true})
+	adminCtl.ConfirmReservation(c)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for invalid id, got %d", w.Code)
+	}
+
+	// Confirm unauthorized (non-admin)
+	req = httptest.NewRequest(http.MethodPatch, "/admin/reservations/1/confirm", nil)
+	w = httptest.NewRecorder()
+	c = newTestContext(req, w)
+	c.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
+	c.Set(middleware.ContextUserKey, servicedto.User{ID: 2, IsAdmin: false})
+	adminCtl.ConfirmReservation(c)
+	if w.Code != http.StatusForbidden {
+		t.Fatalf("expected 403 for unauthorized admin, got %d", w.Code)
+	}
+
+	// Cancel not found
+	req = httptest.NewRequest(http.MethodPatch, "/admin/reservations/999/cancel", nil)
+	w = httptest.NewRecorder()
+	c = newTestContext(req, w)
+	c.Params = gin.Params{gin.Param{Key: "id", Value: "999"}}
+	c.Set(middleware.ContextUserKey, servicedto.User{ID: 1, IsAdmin: true})
+	adminCtl.CancelReservation(c)
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for missing reservation, got %d", w.Code)
 	}
 }
 

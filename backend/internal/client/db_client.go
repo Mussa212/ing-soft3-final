@@ -9,7 +9,12 @@ import (
 
 // NewDB opens a GORM connection and runs migrations.
 func NewDB(dsn string) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	return NewDBWithDialector(postgres.Open(dsn))
+}
+
+// NewDBWithDialector allows injecting a custom driver (used in tests).
+func NewDBWithDialector(dialector gorm.Dialector) (*gorm.DB, error) {
+	db, err := gorm.Open(dialector, &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}

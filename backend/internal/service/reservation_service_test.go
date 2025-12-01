@@ -123,6 +123,111 @@ func TestCancelReservationForbidden(t *testing.T) {
 	}
 }
 
+func TestCancelReservationInvalidAndMissing(t *testing.T) {
+	client := newFakeReservationClient()
+	svc := NewReservationService(client)
+	ctx := context.Background()
+
+	_, err := svc.CancelReservation(ctx, servicedto.CancelReservationInput{})
+	if err != ErrInvalidInput {
+		t.Fatalf("expected ErrInvalidInput, got %v", err)
+	}
+
+	_, err = svc.CancelReservation(ctx, servicedto.CancelReservationInput{
+		UserID:        1,
+		ReservationID: 123,
+	})
+	if err != ErrReservationNotFound {
+		t.Fatalf("expected ErrReservationNotFound, got %v", err)
+	}
+}
+
+func TestCancelReservationAlreadyCancelled(t *testing.T) {
+	client := newFakeReservationClient()
+	svc := NewReservationService(client)
+	ctx := context.Background()
+
+	res, _ := client.CreateReservation(ctx, servicedto.CreateReservationParams{
+		UserID:  1,
+		Date:    time.Date(2025, 12, 1, 0, 0, 0, 0, time.UTC),
+		Time:    "20:30",
+		People:  2,
+		Status:  servicedto.StatusCancelled,
+		Comment: nil,
+	})
+
+	out, err := svc.CancelReservation(ctx, servicedto.CancelReservationInput{
+		UserID:        1,
+		ReservationID: res.ID,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error on already cancelled: %v", err)
+	}
+	if out.Status != servicedto.StatusCancelled {
+		t.Fatalf("expected cancelled status to stay cancelled, got %s", out.Status)
+	}
+}
+
+func TestListUserReservationsMissingUser(t *testing.T) {
+	client := newFakeReservationClient()
+	svc := NewReservationService(client)
+	ctx := context.Background()
+
+	_, err := svc.ListUserReservations(ctx, servicedto.ListUserReservationsInput{
+		UserID: 0,
+	})
+	if err != ErrInvalidInput {
+		t.Fatalf("expected ErrInvalidInput, got %v", err)
+	}
+}
+
+func TestAdminListReservationsValidation(t *testing.T) {
+	client := newFakeReservationClient()
+	svc := NewReservationService(client)
+	ctx := context.Background()
+
+	_, err := svc.AdminListReservations(ctx, servicedto.AdminListReservationsInput{})
+	if err != ErrInvalidInput {
+		t.Fatalf("expected ErrInvalidInput, got %v", err)
+	}
+
+	status := "weird"
+	_, err = svc.AdminListReservations(ctx, servicedto.AdminListReservationsInput{
+		Date:   "2025-01-01",
+		Status: &status,
+	})
+	if err != ErrInvalidStatus {
+		t.Fatalf("expected ErrInvalidStatus, got %v", err)
+	}
+
+	_, err = svc.AdminListReservations(ctx, servicedto.AdminListReservationsInput{
+		Date: "bad-date",
+	})
+	if err != ErrInvalidInput {
+		t.Fatalf("expected ErrInvalidInput for bad date, got %v", err)
+	}
+}
+
+func TestAdminCancelReservationUnauthorized(t *testing.T) {
+	client := newFakeReservationClient()
+	svc := NewReservationService(client)
+	ctx := context.Background()
+
+	res, _ := client.CreateReservation(ctx, servicedto.CreateReservationParams{
+		UserID:  1,
+		Date:    time.Date(2025, 12, 1, 0, 0, 0, 0, time.UTC),
+		Time:    "21:00",
+		People:  2,
+		Status:  servicedto.StatusPending,
+		Comment: nil,
+	})
+
+	_, err := svc.AdminCancelReservation(ctx, servicedto.User{ID: 2, IsAdmin: false}, res.ID)
+	if err != ErrUnauthorized {
+		t.Fatalf("expected ErrUnauthorized, got %v", err)
+	}
+}
+
 func TestCancelReservationSuccess(t *testing.T) {
 	client := newFakeReservationClient()
 	svc := NewReservationService(client)
