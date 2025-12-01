@@ -32,23 +32,7 @@ export const HomePage: React.FC = () => {
                     maxWidth: '600px',
                     flex: 2
                 }}>
-                    <h1 style={{ fontSize: '48px', marginBottom: '16px', color: 'var(--color-primary)' }}>
-                        Vesuvio Ristorante
-                    </h1>
-                    <p style={{ fontSize: '20px', color: '#555', marginBottom: '40px' }}>
-                        Experience authentic Neapolitan cuisine in a warm, family atmosphere.
-                        <br />
-                        <em style={{ display: 'block', marginTop: '16px', fontSize: '18px' }}>"We lead the world in computerized data collection!" - Artie Bucco</em>
-                    </p>
-
-                    <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-                        <Link to="/login">
-                            <Button style={{ minWidth: '150px' }}>Login</Button>
-                        </Link>
-                        <Link to="/register">
-                            <Button variant="secondary" style={{ minWidth: '150px' }}>Register</Button>
-                        </Link>
-                    </div>
+          
                 </div>
 
                 {/* Right Image - Restaurant */}

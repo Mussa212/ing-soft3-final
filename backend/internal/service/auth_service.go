@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"vesuvio/internal/dto/service"
+	servicedto "vesuvio/internal/dto/service"
 )
 
 // UserClient abstracts user persistence.
@@ -25,36 +25,7 @@ func NewAuthService(userClient UserClient) *AuthService {
 }
 
 func (s *AuthService) Register(ctx context.Context, input servicedto.RegisterUserInput) (*servicedto.RegisterUserOutput, error) {
-	name := strings.TrimSpace(input.Name)
-	email := strings.TrimSpace(strings.ToLower(input.Email))
-	if name == "" || email == "" || strings.TrimSpace(input.Password) == "" {
-		return nil, ErrInvalidInput
-	}
-
-	existing, err := s.userClient.GetUserByEmail(ctx, email)
-	if err != nil {
-		return nil, err
-	}
-	if existing != nil {
-		return nil, ErrEmailAlreadyExists
-	}
-
-	hash, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := s.userClient.CreateUser(ctx, servicedto.CreateUserParams{
-		Name:         name,
-		Email:        email,
-		PasswordHash: string(hash),
-		IsAdmin:      false,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &servicedto.RegisterUserOutput{User: *user}, nil
+	return nil, nil
 }
 
 func (s *AuthService) Login(ctx context.Context, input servicedto.LoginUserInput) (*servicedto.LoginUserOutput, error) {

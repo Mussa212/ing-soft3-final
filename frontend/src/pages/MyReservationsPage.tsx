@@ -11,15 +11,7 @@ export const MyReservationsPage: React.FC = () => {
     const [filter, setFilter] = useState('all');
 
     const fetchReservations = async () => {
-        setIsLoading(true);
-        try {
-            const data = await reservationsApi.getMyReservations(filter);
-            setReservations(data);
-        } catch (err) {
-            console.error('Failed to fetch reservations', err);
-        } finally {
-            setIsLoading(false);
-        }
+
     };
 
     useEffect(() => {
@@ -27,15 +19,6 @@ export const MyReservationsPage: React.FC = () => {
     }, [filter]);
 
     const handleCancel = async (id: number) => {
-        if (!window.confirm('Are you sure you want to cancel this reservation?')) return;
-
-        try {
-            await reservationsApi.cancel(id);
-            fetchReservations();
-        } catch (err) {
-            console.error('Failed to cancel reservation', err);
-            alert('Failed to cancel reservation');
-        }
     };
 
     return (
