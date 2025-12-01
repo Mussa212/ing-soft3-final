@@ -1,0 +1,161 @@
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.card {
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+}
+
+.title {
+    color: var(--color-primary);
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 32px;
+}
+
+.row {
+    display: flex;
+    gap: 16px;
+}
+
+.row>* {
+    flex: 1;
+}
+
+.formGroup {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--color-text);
+}
+
+.textarea {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    font-family: var(--font-body);
+    resize: vertical;
+}
+
+.textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(128, 0, 32, 0.1);
+}
+
+.errorMessage {
+    background-color: #ffebee;
+    color: var(--color-error);
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+/* List Styles */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.select {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.reservationCard {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.reservationInfo {
+    flex: 1;
+}
+
+.date {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: 4px;
+}
+
+.details {
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.comment {
+    font-style: italic;
+    color: #777;
+}
+
+.status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.pending {
+    background-color: #fff3e0;
+    color: #e65100;
+}
+
+.confirmed {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.cancelled {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.cancelButton {
+    margin-left: 16px;
+}
+
+.loading,
+.empty {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-style: italic;
+}
