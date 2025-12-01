@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	servicedto "vesuvio/internal/dto/service"
+	"vesuvio/internal/dto/service"
 )
 
 // ReservationClient abstracts reservation persistence.
@@ -25,7 +25,28 @@ func NewReservationService(resClient ReservationClient) *ReservationService {
 }
 
 func (s *ReservationService) CreateReservation(ctx context.Context, input servicedto.CreateReservationInput) (*servicedto.CreateReservationOutput, error) {
-	return nil, nil
+	if input.UserID == 0 || input.Date == "" || input.Time == "" || input.People <= 0 {
+		return nil, ErrInvalidInput
+	}
+
+	parsedDate, err := time.Parse("2006-01-02", input.Date)
+	if err != nil {
+		return nil, ErrInvalidInput
+	}
+
+	res, err := s.reservationClient.CreateReservation(ctx, servicedto.CreateReservationParams{
+		UserID:  input.UserID,
+		Date:    parsedDate,
+		Time:    input.Time,
+		People:  input.People,
+		Comment: input.Comment,
+		Status:  servicedto.StatusPending,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &servicedto.CreateReservationOutput{Reservation: *res}, nil
 }
 
 func (s *ReservationService) ListUserReservations(ctx context.Context, input servicedto.ListUserReservationsInput) ([]servicedto.Reservation, error) {
