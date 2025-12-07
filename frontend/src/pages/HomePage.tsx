@@ -38,7 +38,7 @@ export const HomePage: React.FC = () => {
                     <p style={{ fontSize: '20px', color: '#555', marginBottom: '40px' }}>
                         Experience authentic Neapolitan cuisine in a warm, family atmosphere.
                         <br />
-                        <em style={{ display: 'block', marginTop: '16px', fontSize: '18px' }}>"We lead the world in computerized data collection!" - Artie Bucco</em>
+                        <em style={{ display: 'block', marginTop: '16px', fontSize: '18px' }}>"This shouldn't reach production unless I allow it!" - Artie Bucco</em>
                     </p>
 
                     <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
