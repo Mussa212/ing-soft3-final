@@ -93,11 +93,21 @@ jobs:
           name: frontend-coverage
           path: frontend/coverage
 
+      - name: List coverage files
+        run: |
+          echo "=== Backend coverage ==="
+          ls -la backend/
+          head -20 backend/coverage.out || echo "No coverage.out found"
+          echo "=== Frontend coverage ==="
+          ls -la frontend/coverage/ || echo "No frontend coverage folder"
+          head -20 frontend/coverage/lcov.info || echo "No lcov.info found"
+
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
 
   deploy-qa:
     name: Deploy QA
