@@ -81,10 +81,10 @@ jobs:
       RENDER_HOOK_FRONTEND_QA: ${{ secrets.RENDER_HOOK_FRONTEND_QA }}
     steps:
       - name: Trigger backend QA deploy
-        run: curl -X POST "$RENDER_HOOK_BACKEND_QA"
+        run: curl --fail-with-body --retry 3 --retry-delay 5 --max-time 120 -X POST "$RENDER_HOOK_BACKEND_QA"
 
       - name: Trigger frontend QA deploy
-        run: curl -X POST "$RENDER_HOOK_FRONTEND_QA"
+        run: curl --fail-with-body --retry 3 --retry-delay 5 --max-time 120 -X POST "$RENDER_HOOK_FRONTEND_QA"
 
   cypress-integration:
     name: Cypress Integration
@@ -119,8 +119,7 @@ jobs:
       RENDER_HOOK_FRONTEND_PROD: ${{ secrets.RENDER_HOOK_FRONTEND_PROD }}
     steps:
       - name: Trigger backend PROD deploy
-        run: curl -X POST "$RENDER_HOOK_BACKEND_PROD"
+        run: curl --fail-with-body --retry 3 --retry-delay 5 --max-time 120 -X POST "$RENDER_HOOK_BACKEND_PROD"
 
       - name: Trigger frontend PROD deploy
-        run: curl -X POST "$RENDER_HOOK_FRONTEND_PROD"
-
+        run: curl --fail-with-body --retry 3 --retry-delay 5 --max-time 120 -X POST "$RENDER_HOOK_FRONTEND_PROD"
