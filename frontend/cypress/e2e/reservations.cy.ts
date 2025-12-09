@@ -93,28 +93,15 @@ describe('Reservations Flow', () => {
         cy.wait('@adminLogin').its('response.statusCode').should('eq', 200);
         cy.url().should('include', '/admin/reservations');
 
-        // Check reservations
+        // Wait for the admin reservations API call
         cy.wait('@getAdminReservations');
-        // We can't guarantee 'Test User' is there unless we just created it, 
-        // but in a real env there might be many. We just check if the list loads.
-        cy.get('table').should('be.visible');
 
-        // Confirm a reservation (this is risky in a real env as we might confirm a random one)
-        // For now, let's just verify we can see the buttons and the list.
-        // If we want to fully test confirm/cancel, we should probably create a reservation first 
-        // and then find THAT specific reservation to act on.
-        // But to keep it simple as per request to just remove mocks:
+        // Verify we're on the admin panel - the title is "Admin Panel"
+        cy.contains('h1', 'Admin Panel').should('be.visible');
 
-        // Let's try to find a PENDING reservation to confirm
-        /* 
-        cy.contains('tr', 'PENDING').within(() => {
-            cy.contains('button', 'Confirm').click();
-        });
-        cy.wait('@confirmReservation').its('response.statusCode').should('eq', 200);
-        */
-
-        // Since we don't want to mess up real data blindly, let's just verify the admin page loads 
-        // and we can see reservations.
-        cy.contains('Reservations Panel').should('be.visible');
+        // The page uses ReservationsList component which renders cards, not a table.
+        // If there are reservations for today, we'll see them. Otherwise we'll see "No reservations found."
+        // Either outcome is valid for this test - we just verify the page loaded.
+        cy.get('body').should('not.contain', 'Loading reservations...');
     });
 });
